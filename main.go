@@ -1,8 +1,8 @@
 package main
 
 import (
+	"database/sql"
 	"net/http"
-	"log"
 
 	"github.com/gin-gonic/gin"
 )
@@ -13,7 +13,14 @@ func main() {
 
 	r := gin.Default()
 
-	r.GET("/shorten", func(c *gin.Context) {
+	r.GET("/shorten", handleShorten(db))
+	r.GET("/lengthen", handleLengthen(db))
+
+	r.Run(":3000")
+}
+
+func handleShorten(db *sql.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
 		longUrl := c.Query("longUrl")
 
 		if longUrl == "" {
@@ -29,9 +36,11 @@ func main() {
 		}
 
 		c.JSON(http.StatusOK, gin.H{"shortUrl": shortUrl})
-	})
+	}
+}
 
-	r.GET("/lengthen", func(c *gin.Context) {
+func handleLengthen(db *sql.DB) gin.HandlerFunc {
+	return func(c * gin.Context) {
 		shortUrl := c.Query("shortUrl")
 
 		if shortUrl == "" {
@@ -47,9 +56,6 @@ func main() {
 		}
 
 
-		log.Println("Redirecting to: ", longUrl)
-		c.Redirect(http.StatusMovedPermanently, longUrl)
-	})
-
-	r.Run(":3000")
+		c.JSON(http.StatusOK, gin.H{"longUrl": longUrl})
+	}
 }
