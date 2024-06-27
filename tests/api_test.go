@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"testing"
+	"time"
 )
 
 func TestShortenEndpoint(t *testing.T) {
@@ -46,15 +47,22 @@ func TestLengthenEndopint(t *testing.T) {
 }
 
 func TestRateLimiterExceed(t *testing.T) {
+	time.Sleep(time.Second)
 	requests := 20
+	tooManyRequests := false
 	fmt.Println("Testing rate limiter with exceeding requests")
 
 	for i := 0; i < requests; i++ {
-		resp, err := http.Get("http://localhost:3000/shorten?longUrl=http://www.google.com")
+		resp, _ := http.Get("http://localhost:3000/shorten?longUrl=http://www.google.com")
 
-		if err != nil && resp.StatusCode != http.StatusTooManyRequests {
-			log.Fatal("Rate limiter test failed")
+		if resp.StatusCode == http.StatusTooManyRequests {
+			tooManyRequests = true
+			break
 		}
+	}
+
+	if (!tooManyRequests) {
+		log.Fatal("Rate limiter test failed")
 	}
 
 	fmt.Printf("Rate limiter test passed with %d requests\n", requests)
@@ -62,15 +70,18 @@ func TestRateLimiterExceed(t *testing.T) {
 }
 
 func TestRateLimiterWithin(t *testing.T) {
+	time.Sleep(time.Second)
 	requests := 10
 	fmt.Println("Testing rate limiter within requests")
 
 	for i := 0; i < 10; i++ {
-		resp, err := http.Get("http://localhost:3000/shorten?longUrl=http://www.google.com")
+		resp, _ := http.Get("http://localhost:3000/shorten?longUrl=http://www.google.com")
 
-		if err != nil && resp.StatusCode != http.StatusOK {
+		if resp.StatusCode != http.StatusOK {
 			log.Fatal("Rate limiter test failed")
 		}
+
+		time.Sleep(100 * time.Millisecond)
 	}
 
 	fmt.Printf("Rate limiter test passed with %d requests\n", requests)

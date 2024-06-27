@@ -19,6 +19,8 @@ func main() {
 	r.Use(rateLimiter(REQUESTS_PER_SECOND))
 	r.GET("/shorten", handleShorten(db))
 	r.GET("/lengthen", handleLengthen(db))
+	r.GET("/group/lengthen", handleGroupLengthen(db))
+	r.GET("/group/shorten", handleGroupShorten(db))
 
 	r.Run(":3000")
 }
@@ -53,8 +55,14 @@ func handleShorten(db *sql.DB) gin.HandlerFunc {
 			return
 		}
 
-		shortUrl := InsertLongUrl(db, longUrl)
+		respChan := make(chan string)
 
+		go func() {
+			shortUrl := InsertLongUrl(db, longUrl)
+			respChan <- shortUrl
+		}()
+
+		shortUrl := <-respChan
 		if shortUrl == "" {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "shortUrl does not exist in database"})
 			return
@@ -82,5 +90,45 @@ func handleLengthen(db *sql.DB) gin.HandlerFunc {
 
 
 		c.JSON(http.StatusOK, gin.H{"longUrl": longUrl})
+	}
+}
+
+func handleGroupLengthen(db *sql.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		shortUrls := c.QueryArray("shortUrl")
+
+		if len(shortUrls) == 0 {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "shortUrl query parameter is required"})
+			return
+		}
+
+		longUrls := make(map[string]string)
+
+		for _, shortUrl := range shortUrls {
+			longUrl := GetLongUrl(db, shortUrl)
+			longUrls[shortUrl] = longUrl
+		}
+
+		c.JSON(http.StatusOK, gin.H{"longUrls": longUrls})
+	}
+}
+
+func handleGroupShorten(db *sql.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		longUrls := c.QueryArray("longUrl")
+
+		if len(longUrls) == 0 {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "longUrl query parameter is required"})
+			return
+		}
+
+		shortUrls := make(map[string]string)
+
+		for _, longUrl := range longUrls {
+			shortUrl := InsertLongUrl(db, longUrl)
+			shortUrls[longUrl] = shortUrl
+		}
+
+		c.JSON(http.StatusOK, gin.H{"shortUrls": shortUrls})
 	}
 }
