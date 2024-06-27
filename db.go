@@ -43,7 +43,8 @@ func InsertLongUrl(db *sql.DB, longUrl string) string {
 	_, err := db.Exec(insertLongUrlStmnt, longUrl, shortUrl)
 	
 	if err != nil {
-		log.Fatal("Error inserting longUrl into Urls table: ", err)
+		log.Print("Error inserting longUrl into Urls table: ", err)
+		return ""
 	}
 
 	log.Println("Inserted longUrl into Urls table")
@@ -60,7 +61,8 @@ func GetLongUrl(db *sql.DB, shortUrl string) string {
 	err := db.QueryRow(fetchLongUrlStmnt, shortUrl).Scan(&longUrl)
 
 	if err != nil {
-		log.Fatal("Error fetching longUrl from Urls table: ", err)
+		log.Print("Error fetching longUrl from Urls table: ", err)
+		return ""
 	}
 
 	log.Println("Fetched longUrl from Urls table")
