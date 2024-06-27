@@ -21,6 +21,7 @@ func main() {
 	r.GET("/lengthen", handleLengthen(db))
 	r.GET("/group/lengthen", handleGroupLengthen(db))
 	r.GET("/group/shorten", handleGroupShorten(db))
+	r.GET("/health", checkHealth(db))
 
 	r.Run(":3000")
 }
@@ -130,5 +131,16 @@ func handleGroupShorten(db *sql.DB) gin.HandlerFunc {
 		}
 
 		c.JSON(http.StatusOK, gin.H{"shortUrls": shortUrls})
+	}
+}
+
+func checkHealth(db *sql.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		if err := db.Ping(); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "database is not healthy"})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{"message": "database is healthy"})
 	}
 }
