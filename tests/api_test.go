@@ -1,16 +1,15 @@
 package main
 
 import (
-	"fmt"
-	"io"
 	"log"
+	"io"
 	"net/http"
 	"testing"
 	"time"
 )
 
 func TestShortenEndpoint(t *testing.T) {
-	fmt.Println("Testing shorten endpoint")
+	log.Println("Testing shorten endpoint")
 	resp, err := http.Get("http://localhost:3000/shorten?longUrl=http://www.google.com")
 
 	if err != nil || resp.StatusCode != http.StatusOK{
@@ -23,12 +22,12 @@ func TestShortenEndpoint(t *testing.T) {
 		log.Fatal("Error reading response body: ", err)
 	}
 
-	fmt.Println(string(body))
-	fmt.Println("")
+	log.Println(string(body))
+	log.Println("")
 }
 
 func TestLengthenEndopint(t *testing.T) {
-	fmt.Println("Testing lengthen endpoint")
+	log.Println("Testing lengthen endpoint")
 	resp, err := http.Get("http://localhost:3000/lengthen?shortUrl=JT0UJwME")
 
 	if err != nil || resp.StatusCode != http.StatusOK {
@@ -42,15 +41,15 @@ func TestLengthenEndopint(t *testing.T) {
 		log.Fatal("Error reading response body: ", err)
 	}
 
-	fmt.Println(string(body))
-	fmt.Println("")
+	log.Println(string(body))
+	log.Println("")
 }
 
 func TestRateLimiterExceed(t *testing.T) {
 	time.Sleep(time.Second)
 	requests := 20
 	tooManyRequests := false
-	fmt.Println("Testing rate limiter with exceeding requests")
+	log.Println("Testing rate limiter with exceeding requests")
 
 	for i := 0; i < requests; i++ {
 		resp, _ := http.Get("http://localhost:3000/shorten?longUrl=http://www.google.com")
@@ -65,14 +64,14 @@ func TestRateLimiterExceed(t *testing.T) {
 		log.Fatal("Rate limiter test failed")
 	}
 
-	fmt.Printf("Rate limiter test passed with %d requests\n", requests)
-	fmt.Println("")	
+	log.Printf("Rate limiter test passed with %d requests\n", requests)
+	log.Println("")	
 }
 
 func TestRateLimiterWithin(t *testing.T) {
 	time.Sleep(time.Second)
 	requests := 10
-	fmt.Println("Testing rate limiter within requests")
+	log.Println("Testing rate limiter within requests")
 
 	for i := 0; i < 10; i++ {
 		resp, _ := http.Get("http://localhost:3000/shorten?longUrl=http://www.google.com")
@@ -84,6 +83,6 @@ func TestRateLimiterWithin(t *testing.T) {
 		time.Sleep(100 * time.Millisecond)
 	}
 
-	fmt.Printf("Rate limiter test passed with %d requests\n", requests)
-	fmt.Println("")
+	log.Printf("Rate limiter test passed with %d requests\n", requests)
+	log.Println("")
 }

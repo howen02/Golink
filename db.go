@@ -10,7 +10,7 @@ import (
 )
 
 func InitialiseDB() *sql.DB {
-	db, err := sql.Open("sqlite3", "./short.db")
+	db, err := sql.Open("sqlite3", "./golink.db")
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -56,14 +56,8 @@ func handleShorten(db *sql.DB) gin.HandlerFunc {
 			return
 		}
 
-		respChan := make(chan string)
+		shortUrl := InsertLongUrl(db, longUrl)
 
-		go func() {
-			shortUrl := InsertLongUrl(db, longUrl)
-			respChan <- shortUrl
-		}()
-
-		shortUrl := <-respChan
 		if shortUrl == "" {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "shortUrl does not exist in database"})
 			return
