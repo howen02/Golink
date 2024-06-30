@@ -39,9 +39,9 @@ func InsertLongUrl(db *sql.DB, longUrl string) string {
 	insertLongUrlStmnt := `
 		INSERT INTO Urls (longUrl, shortUrl) VALUES (?, ?)
 	`
-	
+
 	_, err := db.Exec(insertLongUrlStmnt, longUrl, shortUrl)
-	
+
 	if err != nil {
 		log.Print("Error inserting longUrl into Urls table: ", err)
 		return ""

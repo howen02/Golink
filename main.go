@@ -31,7 +31,7 @@ func rateLimiter(frequency int) gin.HandlerFunc {
 	channel := make(chan time.Time, 1)
 
 	go func() {
-		for t:= range ticker.C {
+		for t := range ticker.C {
 			channel <- t
 		}
 	}()
@@ -68,7 +68,7 @@ func handleShorten(db *sql.DB) gin.HandlerFunc {
 }
 
 func handleLengthen(db *sql.DB) gin.HandlerFunc {
-	return func(c * gin.Context) {
+	return func(c *gin.Context) {
 		shortUrl := c.Query("shortUrl")
 
 		if shortUrl == "" {
@@ -82,7 +82,6 @@ func handleLengthen(db *sql.DB) gin.HandlerFunc {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "error generating longUrl"})
 			return
 		}
-
 
 		c.JSON(http.StatusOK, gin.H{"longUrl": longUrl})
 	}
