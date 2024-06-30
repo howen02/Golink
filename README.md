@@ -1,5 +1,5 @@
 # golink
-#### Video Demo:  <URL HERE>
+#### Video Demo: https://youtu.be/SMCXingtWT8
 #### Description:
 golink is a simple URL shortener API built with the programming language go. 
 
